@@ -1,11 +1,14 @@
 <?php
 
-use Laravel\Passport\AuthCode;
-use Laravel\Passport\Client;
-use Laravel\Passport\Passport;
-use Laravel\Passport\PersonalAccessClient;
+namespace Laravel\Passport\Tests;
+
 use Laravel\Passport\Token;
+use Laravel\Passport\Client;
+use Laravel\Passport\AuthCode;
+use Laravel\Passport\Passport;
 use PHPUnit\Framework\TestCase;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\PersonalAccessClient;
 
 class PassportTest extends TestCase
 {
@@ -44,11 +47,30 @@ class PassportTest extends TestCase
         $this->assertInstanceOf(Passport::personalAccessClientModel(), $client);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function test_missing_personal_access_client_is_reported()
+    {
+        Passport::usePersonalAccessClientModel(PersonalAccessClientStub::class);
+
+        $clientRepository = new ClientRepository;
+        $clientRepository->personalAccessClient();
+    }
+
     public function test_token_instance_can_be_created()
     {
         $token = Passport::token();
 
         $this->assertInstanceOf(Token::class, $token);
         $this->assertInstanceOf(Passport::tokenModel(), $token);
+    }
+}
+
+class PersonalAccessClientStub
+{
+    public function exists()
+    {
+        return false;
     }
 }
